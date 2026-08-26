@@ -1,0 +1,8 @@
+# Build output
+/brewops
+/bin/
+
+# Local database
+*.db
+*.db-shm
+*.db-wal
