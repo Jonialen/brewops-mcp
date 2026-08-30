@@ -28,7 +28,7 @@ Or, with Go installed:
 go install github.com/Jonialen/brewops-mcp@latest
 ```
 
-Requires Go 1.24 or newer to build. Nothing to install to run.
+Requires Go 1.25 or newer to build. Nothing to install to run.
 
 ## Adding it to a host
 
