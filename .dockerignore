@@ -1,0 +1,8 @@
+.git/
+*.db
+*.db-shm
+*.db-wal
+brewops
+bin/
+Dockerfile
+.dockerignore

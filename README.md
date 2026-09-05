@@ -14,25 +14,53 @@ MCP SDK.
 
 ## Installing
 
-The server is a single static binary with no runtime and no C toolchain.
+Two ways, depending on what is already on the machine. Neither needs anything
+else afterwards.
+
+### With Docker — nothing else required
 
 ```sh
 git clone https://github.com/Jonialen/brewops-mcp
 cd brewops-mcp
-go build -o brewops .
+docker build -t brewops-mcp:1.0.0 .
+docker volume create brewops-data
 ```
 
-Or, with Go installed:
+### With Go — one command
 
 ```sh
 go install github.com/Jonialen/brewops-mcp@latest
 ```
 
-Requires Go 1.25 or newer to build. Nothing to install to run.
+Requires Go 1.25 or newer to build. The result is a single static binary with no
+runtime and no C toolchain, because the SQLite driver is pure Go.
 
 ## Adding it to a host
 
 The server speaks MCP over stdio. In a Claude Desktop style configuration:
+
+**Running the container:**
+
+```json
+{
+  "mcpServers": {
+    "brewops": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-v", "brewops-data:/data", "brewops-mcp:1.0.0"]
+    }
+  }
+}
+```
+
+The `-i` is **not optional**. A stdio server reads its frames from standard
+input, and without it the container gets no stdin at all: it sees end-of-file
+immediately, exits, and the host reports a server that started and vanished with
+nothing in the log to explain it.
+
+The volume matters for the same kind of reason. Without it every run begins from
+the seeded catalogue again and forgets every extraction that was recorded.
+
+**Running the binary:**
 
 ```json
 {
@@ -55,7 +83,8 @@ brewops -db ./shop.db
 | --- | --- |
 | `-db` | Path to the shop's database. Created and seeded if absent. Defaults to `$XDG_CONFIG_HOME/brewops/brewops.db`. |
 
-Diagnostics go to stderr. Stdout carries protocol frames and nothing else.
+Diagnostics go to stderr. Stdout carries protocol frames and nothing else: one
+stray line there corrupts the stream for the client.
 
 ## Protocol
 
